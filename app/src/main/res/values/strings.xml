@@ -1,0 +1,19 @@
+<resources>
+    <string name="app_name">Seabots App</string>
+    <string name="todo">TODO</string>
+
+    <string name="seabot">Seabot</string>
+
+    <string name="ubicacion">Ubicación: </string>
+    <string name="ubicacionString"></string>
+
+    <string name="cantidadBasura">Cantidad de basura recogida hoy: </string>
+    <string name="cantidadBasuraString"></string>
+
+    <string name="estadoActual">Estado actual: </string>
+    <string name="estadoActualString"></string>
+
+    <!---
+    <string name="detail4">Detalle 4: </string>
+    <string name="detail5">Detalle 5: </string>-->
+</resources>
