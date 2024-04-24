@@ -1,26 +1,14 @@
 package com.example.m08_uf2_p3_fatimafirdawsi_joelvinansaca;
 
-import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
-
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
-
 public class SeabotDetailsActivity extends AppCompatActivity {
-
-    private FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -43,8 +31,6 @@ public class SeabotDetailsActivity extends AppCompatActivity {
         seabotBasuraTV.setText(seabotBasura);
         seabotEstadoTV.setText(seabotEstado);
 
-        connectToDatabase();
-
         ImageButton backBtn = findViewById(R.id.back_button);
         backBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -54,35 +40,6 @@ public class SeabotDetailsActivity extends AppCompatActivity {
         });
     }
 
-    public void connectToDatabase(){
-        db.collection("seabots")
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                if (document.contains("state") && document.contains("canitdadBasura") && document.contains("ubicacion")) {
-                                    TextView estado = findViewById(R.id.estadoActualString);
-                                    TextView ubicacion = findViewById(R.id.ubicacionString);
-                                    TextView cantidadDeBasura = findViewById(R.id.cantidadBasuraString);
 
-                                    String state = document.getString("estado");
-                                    String ubication = document.getString("ubicacion");
-                                    long cantidadBasura = document.getLong("canitdadBasura");
-
-                                    estado.setText(state);
-                                    ubicacion.setText(ubication);
-                                    cantidadDeBasura.setText(String.valueOf(cantidadBasura));
-
-                                    Log.e(TAG, "onSuccess: " + state);
-                                }
-
-                            }
-                        }
-                    }
-                });
-
-    }
 
 }
