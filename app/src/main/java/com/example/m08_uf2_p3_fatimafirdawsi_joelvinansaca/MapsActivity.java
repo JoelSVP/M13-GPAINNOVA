@@ -30,6 +30,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -40,6 +41,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -54,6 +56,7 @@ import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
     private GoogleMap mMap;
@@ -94,32 +97,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
         //fab = findViewById(R.id.fab);
-        /*fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(MapsActivity.this);
-                builder.setTitle("Confirmation")
-                        .setMessage("Do you want to use your current location?")
-                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                Intent intent = new Intent(MapsActivity.this, CameraActivity.class);
-                                intent.putExtra("location", (Parcelable) lastKnownLocation);
-                                startActivity(intent);
-                            }
-                        })
-                        .setNegativeButton("set custom location ", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                startActivity(new Intent(MapsActivity.this, CoordinatesActivity.class));
-                            }
-                        });
-
-                AlertDialog alertDialog = builder.create();
-                alertDialog.show();
-            }
-        });
-         */
     }
 
     /*
@@ -136,7 +113,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
      */
-
 
     private void updateLocationUI() {
         if (mMap == null) {
@@ -180,34 +156,31 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
                             for (QueryDocumentSnapshot document : task.getResult()) {
-                                if (document.contains("lat") && document.contains("lon") ) {
+                                if (document.contains("lat") && document.contains("lon")) {
                                     double lat = document.getDouble("lat");
                                     double lon = document.getDouble("lon");
 
-                                    /*DecimalFormat df = new DecimalFormat("#.#####");
-                                    String latStr = df.format(lat);
-                                    String lonStr = df.format(lon);*/
-
-                                    //String fileName = "images/" + latStr + "_" + lonStr + ".jpg";
+                                    String fileName = "SEABOTS/seabot.png";
 
                                     LatLng position = new LatLng(lat, lon);
 
-                                    //StorageReference storageRef = FirebaseStorage.getInstance().getReference().child(fileName);
+                                    StorageReference storageRef = FirebaseStorage.getInstance().getReference().child(fileName);
 
                                     storageRef.getBytes(Long.MAX_VALUE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
                                         @Override
                                         public void onSuccess(byte[] bytes) {
-                                            //Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                                            Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
 
-                                            //int width = 100;
-                                            //int height = 100;
-                                            //Bitmap smallMarker = Bitmap.createScaledBitmap(bitmap, width, height, false);
-                                            //BitmapDescriptor icon = BitmapDescriptorFactory.fromBitmap(smallMarker);
+                                            int width = 100;
+                                            int height = 100;
+                                            Bitmap smallMarker = Bitmap.createScaledBitmap(bitmap, width, height, false);
+                                            BitmapDescriptor icon = BitmapDescriptorFactory.fromBitmap(smallMarker);
 
                                             String seabotName = document.getString("seabot");
                                             mMap.addMarker(new MarkerOptions()
                                                     .position(position)
-                                                    .title(seabotName));
+                                                    .title(seabotName)
+                                                    .icon(icon));
                                         }
                                     }).addOnFailureListener(new OnFailureListener() {
                                         @Override
@@ -225,6 +198,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         getLocationPermission();
 
+        //addSeabots();
+
         mMap.setOnMarkerClickListener((Marker marker) -> {
             String seabotName = marker.getTitle();
             db.collection("seabots")
@@ -238,12 +213,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                                     String ubicacion = document.getString("ubicacion");
                                     long cantidadBasura = document.getLong("cantidadBasura");
                                     String estado = document.getString("estado");
+                                    long distancia = document.getLong("distanciaRecorrida");
 
                                     Intent intent = new Intent(MapsActivity.this, SeabotDetailsActivity.class);
                                     intent.putExtra("SEABOT_NAME", seabotName);
                                     intent.putExtra("SEABOT_UBICACION", ubicacion);
                                     intent.putExtra("SEABOT_BASURA", String.valueOf(cantidadBasura));
                                     intent.putExtra("SEABOT_ESTADO", estado);
+                                    intent.putExtra("SEABOT_DISTANCIA", String.valueOf(distancia));
                                     startActivity(intent);
                                 }
                             } else {
@@ -254,12 +231,40 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             return false;
         });
 
-
         updateLocationUI();
         getDeviceLocation();
-        //populateMap(getPictures());
+        populateMap(getPictures());
     }
 
+    public void addSeabots() {
+        float decimal = 0.1F;
+
+        for (int i = 11; i < 16; i++) {
+            Map<String, Object> seabot = new HashMap<>();
+            seabot.put("cantidadBasura", 10);
+            seabot.put("distanciaRecorrida", 10);
+            seabot.put("estado", "Activo");
+            seabot.put("lat", 4.1 + decimal++);
+            seabot.put("lon", 2.1 + decimal++);
+            seabot.put("seabot", "Seabot " + i);
+            seabot.put("ubicacion", "Test " + i);
+
+            db.collection("seabots").document()
+                    .set(seabot)
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void unused) {
+                            Log.d("INSERT SEABOTS", "Seabot insertado en la base de datos.");
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.d("INSERT SEABOTS", "Error al insertar seabot.");
+
+                        }
+                    });
+        }
+    }
 
     private void getDeviceLocation() {
         try {
@@ -290,7 +295,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
-    /*
     public Map<LatLng, StorageReference> getPictures() {
         Map<LatLng, StorageReference> fileMap = new HashMap<>();
 
@@ -305,9 +309,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         return fileMap;
     }
-     */
 
-    /*
     public LatLng getLocationFromFileName(String pictureName) {
         pictureName = pictureName.replace(".jpg", "");
         String[] pictureNameSplit = pictureName.split("_");
@@ -316,9 +318,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         Double longitude = Double.parseDouble(pictureNameSplit[1].replace(",", "."));
         return new LatLng(latitude, longitude);
     }
-     */
 
-    /*@Override
+    @Override
     protected void onResume() {
         super.onResume();
         if (mMap != null) {
@@ -326,7 +327,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
-     */
 
     @Override
     protected void onDestroy() {
@@ -335,7 +335,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         finish();
     }
 
-    /*public void populateMap(Map<LatLng, StorageReference> photos) {
+    public void populateMap(Map<LatLng, StorageReference> photos) {
         for (LatLng key : photos.keySet()) {
             File localFile = null;
             try {
@@ -364,6 +364,4 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         }
     }
-
-     */
 }

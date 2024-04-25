@@ -5,13 +5,16 @@
     <string name="seabot">Seabot</string>
 
     <string name="ubicacion">Ubicación: </string>
-    <string name="ubicacionString"></string>
+    <string name="ubicacionString"/>
 
-    <string name="cantidadBasura">Cantidad de basura recogida hoy: </string>
-    <string name="cantidadBasuraString"></string>
+    <string name="cantidadBasura">Kilogramos recogidos en total: </string>
+    <string name="cantidadBasuraString"/>
 
     <string name="estadoActual">Estado actual: </string>
-    <string name="estadoActualString"></string>
+    <string name="estadoActualString" />
+
+    <string name="distanciaRecorrida">Kilometros recorridos: </string>
+    <string name="distanciaRecorridaString"/>
 
     <!---
     <string name="detail4">Detalle 4: </string>

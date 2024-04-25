@@ -43,7 +43,7 @@
                 android:id="@+id/registerText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Authentication"
+                android:text="Aunteticación"
                 android:textAlignment="center"
                 android:textColor="@color/purple"
                 android:textSize="36sp"
@@ -73,7 +73,7 @@
                 android:background="@drawable/custom_edittext"
                 android:drawableLeft="@drawable/baseline_lock_24"
                 android:drawablePadding="8dp"
-                android:hint="Password"
+                android:hint="Contraseña"
                 android:inputType="textPassword"
                 android:padding="8dp"
                 android:textColor="@color/black"
@@ -94,7 +94,7 @@
                 android:layout_height="60dp"
                 android:layout_marginTop="30dp"
                 android:backgroundTint="@color/purple"
-                android:text="Register"
+                android:text="Registrarse"
                 android:textSize="18sp"
                 app:cornerRadius="20dp" />
 
